@@ -1,5 +1,10 @@
 #include <stdint.h>
+#include "controller.h"
 
-void print_pixel(uint8_t x, uint8_t y, uint8_t color);
-void read_controller(struct controller_state *state);
-void play_sound(uint8_t freq);
+struct io_struct {
+    uint8_t *screen;
+    uint8_t *controller;
+    uint8_t *random;
+};
+
+void * io_loop(void *data);

@@ -1,13 +1,7 @@
-#include "memory.h"
-#include "controller.h"
-#include "cpu.h"
-#include "io.h"
 #include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <pthread.h>
+#include "../iset.h"
 
-uint8_t game_code[] = {
+uint8_t game_code_test[] = {
     0x20, 0x06, 0x06, 0x20, 0x38, 0x06, 0x20, 0x0d, 0x06, 0x20, 0x2a, 0x06, 0x60, 0xa9, 0x02, 0x85,
     0x02, 0xa9, 0x04, 0x85, 0x03, 0xa9, 0x11, 0x85, 0x10, 0xa9, 0x10, 0x85, 0x12, 0xa9, 0x0f, 0x85,
     0x14, 0xa9, 0x04, 0x85, 0x11, 0x85, 0x13, 0x85, 0x15, 0x60, 0xa5, 0xfe, 0x85, 0x00, 0xa5, 0xfe,
@@ -30,37 +24,9 @@ uint8_t game_code[] = {
     0xea, 0xca, 0xd0, 0xfb, 0x60
 };
 
-int main(int argc, char* argv[]) {
-    (void)argc;
-    (void)argv;
-
-    union memory_union* memory = (union memory_union*)malloc(sizeof(union memory_union));
-    memory_init(memory);
-    memory_set_at(memory, 0x600, game_code, sizeof(game_code));
-    memory_set_startup_vector(memory, 0x600);
-
-    struct cpu cpu;
-    cpu_init(&cpu, memory);
-    cpu_reset(&cpu);
-
-
-    uint8_t *random_map = &(memory->raw[0xFE]);
-    uint8_t *controller_map = &(memory->raw[0xFF]);
-    uint8_t *screen_map = &(memory->raw[0x200]);
-
-
-
-    struct io_struct io = {
-        .screen = screen_map,
-        .controller = controller_map,
-        .random = random_map,
-    };
-
-    pthread_t io_thread;
-    pthread_create(&io_thread, NULL, io_loop, (void*)&io);
-
-    while (1) {
-        cpu_act(&cpu, 1);
-        getchar();
-    }
+int iset_tests() {
+    printf("Running instruction set tests...\n");
+    dissasemble(game_code_test, 0, sizeof(game_code_test));
+    printf("Instruction set tests complete.\n");
+    return 0;
 }

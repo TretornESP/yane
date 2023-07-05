@@ -3,7 +3,7 @@ override TARGET := yane.elf
 CC := /usr/bin/gcc
 LD := /usr/bin/ld
 
-CFLAGS ?= -O2 -g -Wall -Wextra -pipe -std=c11
+CFLAGS ?= -O2 -g -Wall -Wextra -pipe -pthread
 
 ABSDIR := $(shell pwd)
 
