@@ -57,12 +57,18 @@ uint8_t get_y(struct cpu *cpu) {
 }
 
 void dump_cpu(struct cpu *cpu) {
-    printf("PC: 0x%04X SP: 0x%02X\n", cpu->regs.pc, cpu->regs.sp);
+    printf("PC: 0x%04X SP: 0x%02X STACK_SIZE: 0x%02X\n", cpu->regs.pc, cpu->regs.sp, cpu->stack_top - cpu->regs.sp);
     printf("A: 0x%02X X: 0x%02X Y: 0x%02X\n", cpu->regs.a, cpu->regs.x, cpu->regs.y);
+    printf("Flags: 0x%02X\n", cpu->regs.flags.sr_byte);
     for (int i = 0; i < 8; i++) {
-        printf("%d", cpu->regs.flags.sr_byte & (1 << i));
+        printf("%d", cpu->regs.flags.sr_byte & (1 << i) ? 1 : 0);
     }
     printf("\nCZIDB-VN\n");
+    printf("Stack: ");
+    for (int i = cpu->regs.sp; i <= cpu->stack_top; i++) {
+        printf("[%02X] %02X ", i, memory_read_silent(cpu->mem, i));
+    }
+    printf("\n");
 }
 
 void cpu_act(struct cpu* cpu, uint8_t debug) {
@@ -78,7 +84,7 @@ void cpu_act(struct cpu* cpu, uint8_t debug) {
     //Instruction decode
     struct instruction* inst = get_instruction(opcode);
 
-    uint16_t effective_address;
+    int effective_address;
     switch (inst->addr_mode) {
         case ABSOLUTE: {
             uint16_t addr = memory_read_word(cpu->mem, cpu->regs.pc);
@@ -103,7 +109,7 @@ void cpu_act(struct cpu* cpu, uint8_t debug) {
             break;
         }
         case IMMEDIATE: {
-            effective_address = cpu->regs.pc;
+            effective_address = -(int8_t)memory_read(cpu->mem, cpu->regs.pc);
             cpu->regs.pc++;
             break;
         }
@@ -160,7 +166,14 @@ void cpu_act(struct cpu* cpu, uint8_t debug) {
     }
 
     if (debug) {
-        printf("INST: %s 0x%04X\n", inst->name, effective_address);
+        printf("Raw: ");
+        for (int i = 0; i < inst->bytes; i++) {
+            printf("%02X ", memory_read_silent(cpu->mem, cpu->regs.pc - inst->bytes + i));
+        }
+        if (effective_address < 0)
+            printf("INST: [0x%02x]%s 0x%04X\n", inst->opcode, inst->name, -effective_address);
+        else
+            printf("INST: [0x%02x]%s 0x%04X\n", inst->opcode, inst->name, effective_address);
         printf("--------------------\n");
     }
 
@@ -176,14 +189,14 @@ void cpu_init(struct cpu *cpu, union memory_union* mem) {
     cpu->regs.x = 0;
     cpu->regs.y = 0;
     cpu->regs.flags.sr_byte = 0;
-
-    cpu->regs.pc = memory_read_word(cpu->mem, 0xFFFC);
-
+    cpu->return_address = 0;
+    cpu->regs.pc = memory_read_word_silent(cpu->mem, 0xFFFC);
+    cpu->stack_top = 0xEF;
     cpu->regs.sp = 0xEF;
 }
 
 void cpu_reset(struct cpu *cpu) {
-    cpu->regs.pc = memory_read_word(cpu->mem, 0xFFFC);
+    cpu->regs.pc = memory_read_word_silent(cpu->mem, 0xFFFC);
     cpu->regs.sp = 0xEF;
     cpu->regs.a = 0;
     cpu->regs.x = 0;
@@ -192,13 +205,13 @@ void cpu_reset(struct cpu *cpu) {
 }
 
 void push(struct cpu *cpu, uint8_t value) {
-    memory_write(cpu->mem, 0x100 + cpu->regs.sp, value);
+    memory_write(cpu->mem, cpu->regs.sp, value);
     cpu->regs.sp--;
 }
 
 uint8_t pull(struct cpu *cpu) {
     cpu->regs.sp++;
-    return memory_read(cpu->mem, 0x100 + cpu->regs.sp);
+    return memory_read(cpu->mem, cpu->regs.sp);
 }
 
 uint8_t get_flags(struct cpu *cpu) {
@@ -211,4 +224,11 @@ void set_flags(struct cpu *cpu, uint8_t flags) {
 
 union memory_union* get_mem(struct cpu *cpu) {
     return cpu->mem;
+}
+
+void cpu_set_return_addr(struct cpu *cpu, uint16_t address) {
+    cpu->return_address = address;
+}
+uint16_t cpu_get_return_addr(struct cpu *cpu) {
+    return cpu->return_address;
 }

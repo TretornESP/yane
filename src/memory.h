@@ -45,9 +45,13 @@ void memory_set_startup_vector(union memory_union* memory, uint16_t startup_vect
 void memory_set_at(union memory_union* memory, uint16_t addr, uint8_t *data, uint16_t size);
 void memory_set_prg_rom(union memory_union* memory, uint8_t* rom, uint16_t rom_size);
 uint8_t memory_read(union memory_union* memory, uint16_t addr);
+uint8_t memory_read_silent(union memory_union* memory, uint16_t addr);
 void memory_write(union memory_union* memory, uint16_t addr, uint8_t data);
+void memory_write_silent(union memory_union* memory, uint16_t addr, uint8_t data);
 void memory_write_word(union memory_union* memory, uint16_t addr, uint16_t data);
+void memory_write_word_silent(union memory_union* memory, uint16_t addr, uint16_t data);
 uint16_t memory_read_word(union memory_union* memory, uint16_t addr);
+uint16_t memory_read_word_silent(union memory_union* memory, uint16_t addr);
 uint8_t memory_read_relative(union memory_union* memory, uint16_t addr, uint8_t offset);
 void memory_write_relative(union memory_union* memory, uint16_t addr, uint8_t offset, uint8_t data);
 

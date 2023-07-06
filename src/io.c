@@ -54,13 +54,17 @@ void play_sound(uint8_t freq) {
 
 void * io_loop(void * data) {
     struct io_struct * io = (struct io_struct *)data;
-    
+    printf("io loop\n");
+
     uint8_t *ctrl = io->controller;
     uint8_t * screen = io->screen;
     uint8_t * random = io->random;
 
     mkfifo(FIFO, 0666);
     int fd = open(FIFO, O_RDONLY);
+    printf("Ctrl at %p\n", ctrl);
+    printf("Screen at %p\n", screen);
+    printf("Random at %p\n", random);
 
     while (1) {
         read_fifo(ctrl, fd);

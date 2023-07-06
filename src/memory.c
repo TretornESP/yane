@@ -30,22 +30,47 @@ void memory_set_startup_vector(union memory_union* memory, uint16_t startup_vect
     memory->raw[0xFFFD] = startup_vector >> 8;
 }
 
+uint8_t memory_read_silent(union memory_union* memory, uint16_t addr) {
+    OOB(addr);
+    return memory->raw[addr];
+}
+
+void memory_write_silent(union memory_union* memory, uint16_t addr, uint8_t data) {
+    OOB(addr);
+    memory->raw[addr] = data;
+}
+
 uint8_t memory_read(union memory_union* memory, uint16_t addr) {
     OOB(addr);
+    printf("R [0x%04X] => 0x%02X\n", addr, memory->raw[addr]);
     return memory->raw[addr];
 }
 
 void memory_write(union memory_union* memory, uint16_t addr, uint8_t data) {
     OOB(addr);
+    printf("W [0x%04X] <= 0x%02X\n", addr, data);
     memory->raw[addr] = data;
 }
 
 uint16_t memory_read_word(union memory_union* memory, uint16_t addr) {
     OOB(addr + 1);
+    printf("R(W) [0x%04X] => 0x%04X\n", addr, memory->raw[addr] | (memory->raw[addr + 1] << 8));
+    return memory->raw[addr] | (memory->raw[addr + 1] << 8);
+}
+
+uint16_t memory_read_word_silent(union memory_union* memory, uint16_t addr) {
+    OOB(addr + 1);
     return memory->raw[addr] | (memory->raw[addr + 1] << 8);
 }
 
 void memory_write_word(union memory_union* memory, uint16_t addr, uint16_t data) {
+    OOB(addr + 1);
+    printf("W(W) [0x%04X] <= 0x%04X\n", addr, data);
+    memory->raw[addr] = data & 0xFF;
+    memory->raw[addr + 1] = data >> 8;
+}
+
+void memory_write_word_silent(union memory_union* memory, uint16_t addr, uint16_t data) {
     OOB(addr + 1);
     memory->raw[addr] = data & 0xFF;
     memory->raw[addr + 1] = data >> 8;

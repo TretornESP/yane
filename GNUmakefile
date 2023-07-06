@@ -3,7 +3,7 @@ override TARGET := yane.elf
 CC := /usr/bin/gcc
 LD := /usr/bin/ld
 
-CFLAGS ?= -O2 -g -Wall -Wextra -pipe -pthread
+CFLAGS ?= -O0 -g -Wall -Wextra -pipe -pthread
 
 ABSDIR := $(shell pwd)
 
@@ -33,12 +33,19 @@ override OBJS := $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(CFILES))
 override OBJS += $(patsubst $(SRCDIR)/%.S, $(OBJDIR)/%_s.o, $(ASFILES))
 override OBJS += $(patsubst $(SRCDIR)/%.asm, $(OBJDIR)/%_asm.o, $(NASMFILES))
 
-.PHONY: clean test all run
+.PHONY: clean test all run gdb debug
 
 all:
 	@echo "Building yane..."
 	@make yane
 	@make run
+	@make clean
+	@echo "Done."
+
+debug:
+	@echo "Building yane..."
+	@make yane
+	@make gdb
 	@make clean
 	@echo "Done."
 
@@ -55,6 +62,10 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c
 run:
 	@echo "Running yane..."
 	@$(BUILDDIR)/$(TARGET)
+
+gdb:
+	@echo "Running yane in gdb..."
+	@gdb --nx $(BUILDDIR)/$(TARGET)
 
 clean:
 	@echo "Cleaning up..."

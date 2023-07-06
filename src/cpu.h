@@ -1,14 +1,14 @@
 #ifndef _CPU_H
 #define _CPU_H
 
-#define CARRY 0x01
-#define ZERO 0x02
-#define INTERRUPT 0x04
-#define DECIMAL 0x08
-#define BREAK 0x10
-#define UNUSED 0x20
-#define OVERFLOW 0x40
-#define NEGATIVE 0x80
+#define CARRY 0x0
+#define ZERO 0x1
+#define INTERRUPT 0x2
+#define DECIMAL 0x3
+#define BREAK 0x4
+#define UNUSED 0x5
+#define OVERFLOW 0x6
+#define NEGATIVE 0x7
 
 #define IMMEDIATE       0x01
 #define ZERO_PAGE      0x02
@@ -60,8 +60,10 @@ struct cpu { //TODO
     uint8_t opcode;
     uint8_t operand;
     uint8_t addr_mode;
+    uint16_t return_address;
     uint8_t cross_page_cycles;
     uint8_t page_boundary_crossed;
+    uint8_t stack_top;
     uint8_t irq;
     uint8_t nmi;
     uint8_t reset;
@@ -93,4 +95,7 @@ union memory_union* get_mem(struct cpu *cpu);
 void cpu_init(struct cpu *cpu, union memory_union* mem);
 void cpu_act(struct cpu* cpu, uint8_t debug);
 void cpu_reset(struct cpu *cpu);
+
+void cpu_set_return_addr(struct cpu *cpu, uint16_t address);
+uint16_t cpu_get_return_addr(struct cpu *cpu);
 #endif

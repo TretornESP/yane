@@ -2,10 +2,19 @@
 #include "controller.h"
 #include "cpu.h"
 #include "io.h"
+
 #include <stdio.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/ipc.h> 
+#include <sys/shm.h> 
+#include <fcntl.h>
 #include <stdlib.h>
 #include <pthread.h>
+
+#define SCREEN_SIZE 1024
+#define SCREEN_WIDTH 32
 
 uint8_t game_code[] = {
     0x20, 0x06, 0x06, 0x20, 0x38, 0x06, 0x20, 0x0d, 0x06, 0x20, 0x2a, 0x06, 0x60, 0xa9, 0x02, 0x85,
@@ -48,19 +57,49 @@ int main(int argc, char* argv[]) {
     uint8_t *controller_map = &(memory->raw[0xFF]);
     uint8_t *screen_map = &(memory->raw[0x200]);
 
+    key_t key1;
 
+    if (-1 != open("/tmp/data", O_CREAT, 0777)) {
+        key1 = ftok("/tmp/data", 0);
+     } else {
+        perror("open");
+        exit(1);
+    }
 
-    struct io_struct io = {
-        .screen = screen_map,
-        .controller = controller_map,
-        .random = random_map,
-    };
+    int id1 = shmget(key1, 0x1000, IPC_CREAT | SHM_R | SHM_W);
+    uint8_t * controller_reader = shmat(id1,0,0);
 
-    pthread_t io_thread;
-    pthread_create(&io_thread, NULL, io_loop, (void*)&io);
+    while (!get_flag(&cpu, BREAK)) {
+        if (*controller_reader == 'w' || *controller_reader == 's' || *controller_reader == 'a' || *controller_reader == 'd')
+            *controller_map = *controller_reader;
+        *random_map = rand() % 256;
 
-    while (1) {
+        //int ignored = system("clear");
+        //(void)ignored;
+
         cpu_act(&cpu, 1);
-        getchar();
+
+        for (uint16_t y = 0; y < SCREEN_SIZE; y++) {
+            if (y > 0 && (y % SCREEN_WIDTH == 0))
+                printf("\n");
+            switch (screen_map[y]) {
+                case 0:
+                    printf("[ ]");
+                    break;
+                case 4:
+                    printf("[@]");
+                    break;
+                case 3:
+                    printf("[X]");
+                    break;
+                default:
+                    printf("[?]");
+                    break;
+            }
+        }
+        printf("\n");
+        
+        printf("CTRL: %02x | PRNG: %02x\n", *controller_map, *random_map);
+        usleep(100000);
     }
 }

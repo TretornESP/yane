@@ -6,8 +6,13 @@
 
 //https://github.com/bugzmanov/nes_ebook/blob/master/code/ch3.3/src/cpu.rs
 
-void adc(struct cpu *cpu, uint16_t address) {
-    uint8_t value = memory_read(get_mem(cpu), address);
+void adc(struct cpu *cpu, int address) {
+    uint8_t value;
+    if (address > 0)
+        value = memory_read(get_mem(cpu), address);
+    else
+        value = -address;
+
     uint8_t a_value = get_a(cpu);
     uint16_t result = a_value + value + get_flag(cpu, CARRY);
 
@@ -18,8 +23,13 @@ void adc(struct cpu *cpu, uint16_t address) {
     set_a(cpu, result & 0xFF);
 }
 
-void and(struct cpu *cpu, uint16_t address) {
-    uint8_t value = memory_read(get_mem(cpu), address);
+void and(struct cpu *cpu, int address) {
+    uint8_t value;
+    if (address > 0)
+        value = memory_read(get_mem(cpu), address);
+    else
+        value = -address;
+
     uint8_t a_value = get_a(cpu);
     uint8_t result = a_value & value;
 
@@ -28,8 +38,13 @@ void and(struct cpu *cpu, uint16_t address) {
     set_a(cpu, result);
 }
 
-void asl(struct cpu *cpu, uint16_t address) {
-    uint8_t value = memory_read(get_mem(cpu), address);
+void asl(struct cpu *cpu, int address) {
+    uint8_t value;
+    if (address > 0)
+        value = memory_read(get_mem(cpu), address);
+    else
+        value = -address;
+        
     uint8_t result = value << 1;
 
     set_flag(cpu, CARRY, value & 0x80);
@@ -38,25 +53,29 @@ void asl(struct cpu *cpu, uint16_t address) {
 
     memory_write(get_mem(cpu), address, result);   
 }
-void bcc(struct cpu *cpu, uint16_t address) {
+void bcc(struct cpu *cpu, int address) {
     if (get_flag(cpu, CARRY) == 0) {
         set_pc(cpu, address);
     }
 }
-void bcs(struct cpu *cpu, uint16_t address) {
+void bcs(struct cpu *cpu, int address) {
     if (get_flag(cpu, CARRY) == 1) {
         set_pc(cpu, address);
     }
 }
 
-void beq(struct cpu *cpu, uint16_t address) {
+void beq(struct cpu *cpu, int address) {
     if (get_flag(cpu, ZERO) == 1) {
         set_pc(cpu, address);
     }
 }
 
-void bit(struct cpu *cpu, uint16_t address) {
-    uint8_t value = memory_read(get_mem(cpu), address);
+void bit(struct cpu *cpu, int address) {
+    uint8_t value;
+    if (address > 0)
+        value = memory_read(get_mem(cpu), address);
+    else
+        value = -address;
     uint8_t a_value = get_a(cpu);
     uint8_t result = a_value & value;
 
@@ -65,63 +84,67 @@ void bit(struct cpu *cpu, uint16_t address) {
     set_flag(cpu, OVERFLOW, value & (1 << 6));
 }
 
-void bmi(struct cpu *cpu, uint16_t address) {
+void bmi(struct cpu *cpu, int address) {
     if (get_flag(cpu, NEGATIVE) == 1) {
         set_pc(cpu, address);
     }
 }
 
-void bne(struct cpu *cpu, uint16_t address) {
+void bne(struct cpu *cpu, int address) {
     if (get_flag(cpu, ZERO) == 0) {
         set_pc(cpu, address);
     }
 }
 
-void bpl(struct cpu *cpu, uint16_t address) {
+void bpl(struct cpu *cpu, int address) {
     if (get_flag(cpu, NEGATIVE) == 0) {
         set_pc(cpu, address);
     }
 }
 
-void brk(struct cpu *cpu, uint16_t address) {
+void brk(struct cpu *cpu, int address) {
     (void) address;
     set_flag(cpu, BREAK, 1);
 }
 
-void bvc(struct cpu *cpu, uint16_t address) {
+void bvc(struct cpu *cpu, int address) {
     if (get_flag(cpu, OVERFLOW) == 0) {
         set_pc(cpu, address);
     }
 }
 
-void bvs(struct cpu *cpu, uint16_t address) {
+void bvs(struct cpu *cpu, int address) {
     if (get_flag(cpu, OVERFLOW) == 1) {
         set_pc(cpu, address);
     }
 }
 
-void clc(struct cpu *cpu, uint16_t address) {
+void clc(struct cpu *cpu, int address) {
     (void) address;
     set_flag(cpu, CARRY, 0);
 }
 
-void cld(struct cpu *cpu, uint16_t address) {
+void cld(struct cpu *cpu, int address) {
     (void) address;
     set_flag(cpu, DECIMAL, 0);
 }
 
-void cli(struct cpu *cpu, uint16_t address) {
+void cli(struct cpu *cpu, int address) {
     (void) address;
     set_flag(cpu, INTERRUPT, 0);
 }
 
-void clv(struct cpu *cpu, uint16_t address) {
+void clv(struct cpu *cpu, int address) {
     (void) address;
     set_flag(cpu, OVERFLOW, 0);
 }
 
-void cmp(struct cpu *cpu, uint16_t address) {
-    uint8_t value = memory_read(get_mem(cpu), address);
+void cmp(struct cpu *cpu, int address) {
+    uint8_t value;
+    if (address > 0)
+        value = memory_read(get_mem(cpu), address);
+    else
+        value = -address;
     uint8_t a_value = get_a(cpu);
     uint8_t result = a_value - value;
 
@@ -130,8 +153,12 @@ void cmp(struct cpu *cpu, uint16_t address) {
     set_flag(cpu, NEGATIVE, result & 0x80);
 }
 
-void cpx(struct cpu *cpu, uint16_t address) {
-    uint8_t value = memory_read(get_mem(cpu), address);
+void cpx(struct cpu *cpu, int address) {
+    uint8_t value;
+    if (address > 0)
+        value = memory_read(get_mem(cpu), address);
+    else
+        value = -address;
     uint8_t x_value = get_x(cpu);
     uint8_t result = x_value - value;
 
@@ -140,8 +167,12 @@ void cpx(struct cpu *cpu, uint16_t address) {
     set_flag(cpu, NEGATIVE, result & 0x80);
 }
 
-void cpy(struct cpu *cpu, uint16_t address) {
-    uint8_t value = memory_read(get_mem(cpu), address);
+void cpy(struct cpu *cpu, int address) {
+    uint8_t value;
+    if (address > 0)
+        value = memory_read(get_mem(cpu), address);
+    else
+        value = -address;
     uint8_t y_value = get_y(cpu);
     uint8_t result = y_value - value;
 
@@ -150,8 +181,12 @@ void cpy(struct cpu *cpu, uint16_t address) {
     set_flag(cpu, NEGATIVE, result & 0x80);
 }
 
-void dec(struct cpu *cpu, uint16_t address) {
-    uint8_t value = memory_read(get_mem(cpu), address);
+void dec(struct cpu *cpu, int address) {
+    uint8_t value;
+    if (address > 0)
+        value = memory_read(get_mem(cpu), address);
+    else
+        value = -address;
     uint8_t result = value - 1;
 
     set_flag(cpu, ZERO, result == 0);
@@ -160,7 +195,7 @@ void dec(struct cpu *cpu, uint16_t address) {
     memory_write(get_mem(cpu), address, result);
 }
 
-void dex(struct cpu *cpu, uint16_t address) {
+void dex(struct cpu *cpu, int address) {
     (void) address;
     uint8_t x_value = get_x(cpu);
     uint8_t result = x_value - 1;
@@ -171,7 +206,7 @@ void dex(struct cpu *cpu, uint16_t address) {
     set_x(cpu, result);
 }
 
-void dey(struct cpu *cpu, uint16_t address) {
+void dey(struct cpu *cpu, int address) {
     (void) address;
     uint8_t y_value = get_y(cpu);
     uint8_t result = y_value - 1;
@@ -182,8 +217,12 @@ void dey(struct cpu *cpu, uint16_t address) {
     set_y(cpu, result);
 }
 
-void eor(struct cpu *cpu, uint16_t address) {
-    uint8_t value = memory_read(get_mem(cpu), address);
+void eor(struct cpu *cpu, int address) {
+    uint8_t value;
+    if (address > 0)
+        value = memory_read(get_mem(cpu), address);
+    else
+        value = -address;
     uint8_t a_value = get_a(cpu);
     uint8_t result = a_value ^ value;
 
@@ -193,8 +232,12 @@ void eor(struct cpu *cpu, uint16_t address) {
     set_a(cpu, result);
 }
 
-void inc(struct cpu *cpu, uint16_t address) {
-    uint8_t value = memory_read(get_mem(cpu), address);
+void inc(struct cpu *cpu, int address) {
+    uint8_t value;
+    if (address > 0)
+        value = memory_read(get_mem(cpu), address);
+    else
+        value = -address;
     uint8_t result = value + 1;
 
     set_flag(cpu, ZERO, result == 0);
@@ -203,7 +246,7 @@ void inc(struct cpu *cpu, uint16_t address) {
     memory_write(get_mem(cpu), address, result);
 }
 
-void inx(struct cpu *cpu, uint16_t address) {
+void inx(struct cpu *cpu, int address) {
     (void) address;
     uint8_t x_value = get_x(cpu);
     uint8_t result = x_value + 1;
@@ -214,7 +257,7 @@ void inx(struct cpu *cpu, uint16_t address) {
     set_x(cpu, result);
 }
 
-void iny(struct cpu *cpu, uint16_t address) {
+void iny(struct cpu *cpu, int address) {
     (void) address;
     uint8_t y_value = get_y(cpu);
     uint8_t result = y_value + 1;
@@ -225,11 +268,11 @@ void iny(struct cpu *cpu, uint16_t address) {
     set_y(cpu, result);
 }
 
-void jmp(struct cpu *cpu, uint16_t address) {
+void jmp(struct cpu *cpu, int address) {
     set_pc(cpu, address);
 }
 
-void jsr(struct cpu *cpu, uint16_t address) {
+void jsr(struct cpu *cpu, int address) {
     (void) address;
     uint16_t pc = get_pc(cpu);
     uint8_t pc_high = (pc >> 8) & 0xFF;
@@ -238,11 +281,17 @@ void jsr(struct cpu *cpu, uint16_t address) {
     push(cpu, pc_high);
     push(cpu, pc_low);
 
+    cpu_set_return_addr(cpu, pc);
+
     set_pc(cpu, address);
 }
 
-void lda(struct cpu *cpu, uint16_t address) {
-    uint8_t value = memory_read(get_mem(cpu), address);
+void lda(struct cpu *cpu, int address) {
+    uint8_t value;
+    if (address > 0)
+        value = memory_read(get_mem(cpu), address);
+    else
+        value = -address;
 
     set_flag(cpu, ZERO, value == 0);
     set_flag(cpu, NEGATIVE, value & 0x80);
@@ -250,8 +299,12 @@ void lda(struct cpu *cpu, uint16_t address) {
     set_a(cpu, value);
 }
 
-void ldx(struct cpu *cpu, uint16_t address) {
-    uint8_t value = memory_read(get_mem(cpu), address);
+void ldx(struct cpu *cpu, int address) {
+    uint8_t value;
+    if (address > 0)
+        value = memory_read(get_mem(cpu), address);
+    else
+        value = -address;
 
     set_flag(cpu, ZERO, value == 0);
     set_flag(cpu, NEGATIVE, value & 0x80);
@@ -259,8 +312,12 @@ void ldx(struct cpu *cpu, uint16_t address) {
     set_x(cpu, value);
 }
 
-void ldy(struct cpu *cpu, uint16_t address) {
-    uint8_t value = memory_read(get_mem(cpu), address);
+void ldy(struct cpu *cpu, int address) {
+    uint8_t value;
+    if (address > 0)
+        value = memory_read(get_mem(cpu), address);
+    else
+        value = -address;
 
     set_flag(cpu, ZERO, value == 0);
     set_flag(cpu, NEGATIVE, value & 0x80);
@@ -268,25 +325,36 @@ void ldy(struct cpu *cpu, uint16_t address) {
     set_y(cpu, value);
 }
 
-void lsr(struct cpu *cpu, uint16_t address) {
-    uint8_t value = memory_read(get_mem(cpu), address);
+void lsr(struct cpu *cpu, int address) {
+    uint8_t value;
+    if (address > 0)
+        value = memory_read(get_mem(cpu), address);
+    else
+        value = -address;
     uint8_t result = value >> 1;
 
     set_flag(cpu, CARRY, value & 0x01);
     set_flag(cpu, ZERO, result == 0);
     set_flag(cpu, NEGATIVE, result & 0x80);
 
-    memory_write(get_mem(cpu), address, result);
+    if (address > 0)
+        memory_write(get_mem(cpu), address, result);
+    else
+        set_a(cpu, result);
 }
 
-void nop(struct cpu *cpu, uint16_t address) {
+void nop(struct cpu *cpu, int address) {
     (void) address;
     (void) cpu;
     // do nothing
 }
 
-void ora(struct cpu *cpu, uint16_t address) {
-    uint8_t value = memory_read(get_mem(cpu), address);
+void ora(struct cpu *cpu, int address) {
+    uint8_t value;
+    if (address > 0)
+        value = memory_read(get_mem(cpu), address);
+    else
+        value = -address;
     uint8_t a_value = get_a(cpu);
     uint8_t result = a_value | value;
 
@@ -296,53 +364,69 @@ void ora(struct cpu *cpu, uint16_t address) {
     set_a(cpu, result);
 }
 
-void pha(struct cpu *cpu, uint16_t address) {
+void pha(struct cpu *cpu, int address) {
     (void) address;
     uint8_t a_value = get_a(cpu);
     push(cpu, a_value);
 }
 
-void php(struct cpu *cpu, uint16_t address) {
+void php(struct cpu *cpu, int address) {
     (void) address;
     uint8_t p_value = get_flags(cpu);
     push(cpu, p_value);
 }
 
-void pla(struct cpu *cpu, uint16_t address) {
+void pla(struct cpu *cpu, int address) {
     (void) address;
     uint8_t value = pull(cpu);
     set_a(cpu, value);
 }
 
-void plp(struct cpu *cpu, uint16_t address) {
+void plp(struct cpu *cpu, int address) {
     (void) address;
     uint8_t value = pull(cpu);
     set_flags(cpu, value);
 }
 
-void rol(struct cpu *cpu, uint16_t address) {
-    uint8_t value = memory_read(get_mem(cpu), address);
+void rol(struct cpu *cpu, int address) {
+    uint8_t value;
+    if (address > 0)
+        value = memory_read(get_mem(cpu), address);
+    else
+        value = -address;
+
     uint8_t result = (value << 1) | get_flag(cpu, CARRY);
 
     set_flag(cpu, CARRY, value & 0x80);
     set_flag(cpu, ZERO, result == 0);
     set_flag(cpu, NEGATIVE, result & 0x80);
 
-    memory_write(get_mem(cpu), address, result);
+    if (address > 0)
+        memory_write(get_mem(cpu), address, result);
+    else
+        set_a(cpu, result);
 }
 
-void ror(struct cpu *cpu, uint16_t address) {
-    uint8_t value = memory_read(get_mem(cpu), address);
+void ror(struct cpu *cpu, int address) {
+    uint8_t value;
+    if (address > 0)
+        value = memory_read(get_mem(cpu), address);
+    else
+        value = -address;
+        
     uint8_t result = (value >> 1) | (get_flag(cpu, CARRY) << 7);
 
     set_flag(cpu, CARRY, value & 0x01);
     set_flag(cpu, ZERO, result == 0);
     set_flag(cpu, NEGATIVE, result & 0x80);
-
-    memory_write(get_mem(cpu), address, result);
+    
+    if (address > 0)
+        memory_write(get_mem(cpu), address, result);
+    else
+        set_a(cpu, result);
 }
 
-void rti(struct cpu *cpu, uint16_t address) {
+void rti(struct cpu *cpu, int address) {
     (void) address;
     uint8_t p_value = pull(cpu);
     set_flags(cpu, p_value);
@@ -353,16 +437,23 @@ void rti(struct cpu *cpu, uint16_t address) {
     set_pc(cpu, pc);
 }
 
-void rts(struct cpu *cpu, uint16_t address) {
+void rts(struct cpu *cpu, int address) {
     (void) address;
     uint8_t pc_low = pull(cpu);
     uint8_t pc_high = pull(cpu);
     uint16_t pc = (pc_high << 8) | pc_low;
-    set_pc(cpu, pc + 1);
+
+    printf("expected rts: %04X\n", cpu_get_return_addr(cpu));
+    printf("actual rts: %04X\n", pc);
+    set_pc(cpu, pc);
 }
 
-void sbc(struct cpu *cpu, uint16_t address) {
-    uint8_t value = memory_read(get_mem(cpu), address);
+void sbc(struct cpu *cpu, int address) {
+    uint8_t value;
+    if (address > 0)
+        value = memory_read(get_mem(cpu), address);
+    else
+        value = -address;
     uint8_t a_value = get_a(cpu);
     uint8_t carry = get_flag(cpu, CARRY);
     uint8_t result = a_value - value - (1 - carry);
@@ -375,67 +466,67 @@ void sbc(struct cpu *cpu, uint16_t address) {
     set_a(cpu, result);    
 }
 
-void sec(struct cpu *cpu, uint16_t address) {
+void sec(struct cpu *cpu, int address) {
     (void) address;
     set_flag(cpu, CARRY, 1);
 }
 
-void sed(struct cpu *cpu, uint16_t address) {
+void sed(struct cpu *cpu, int address) {
     (void) address;
     set_flag(cpu, DECIMAL, 1);
 }
 
-void sei(struct cpu *cpu, uint16_t address) {
+void sei(struct cpu *cpu, int address) {
     (void) address;
     set_flag(cpu, INTERRUPT, 1);
 }
 
-void sta(struct cpu *cpu, uint16_t address) {
+void sta(struct cpu *cpu, int address) {
     uint8_t a_value = get_a(cpu);
     memory_write(get_mem(cpu), address, a_value);
 }
 
-void stx(struct cpu *cpu, uint16_t address) {
+void stx(struct cpu *cpu, int address) {
     uint8_t x_value = get_x(cpu);
     memory_write(get_mem(cpu), address, x_value);
 }
 
-void sty(struct cpu *cpu, uint16_t address) {
+void sty(struct cpu *cpu, int address) {
     uint8_t y_value = get_y(cpu);
     memory_write(get_mem(cpu), address, y_value);
 }
 
-void tax(struct cpu *cpu, uint16_t address) {
+void tax(struct cpu *cpu, int address) {
     (void) address;
     uint8_t a_value = get_a(cpu);
     set_x(cpu, a_value);
 }
 
-void tay(struct cpu *cpu, uint16_t address) {
+void tay(struct cpu *cpu, int address) {
     (void) address;
     uint8_t a_value = get_a(cpu);
     set_y(cpu, a_value);
 }
 
-void tsx(struct cpu *cpu, uint16_t address) {
+void tsx(struct cpu *cpu, int address) {
     (void) address;
     uint8_t sp_value = get_sp(cpu);
     set_x(cpu, sp_value);
 }
 
-void txa(struct cpu *cpu, uint16_t address) {
+void txa(struct cpu *cpu, int address) {
     (void) address;
     uint8_t x_value = get_x(cpu);
     set_a(cpu, x_value);
 }
 
-void txs(struct cpu *cpu, uint16_t address) {
+void txs(struct cpu *cpu, int address) {
     (void) address;
     uint8_t x_value = get_x(cpu);
     set_sp(cpu, x_value);
 }
 
-void tya(struct cpu *cpu, uint16_t address) {
+void tya(struct cpu *cpu, int address) {
     (void) address;
     uint8_t y_value = get_y(cpu);
     set_a(cpu, y_value);

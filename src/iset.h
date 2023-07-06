@@ -11,7 +11,7 @@ struct instruction {
     uint8_t cycles;
     uint8_t addr_mode;
     uint8_t cross_page_cycles;
-    void (*execute)(struct cpu *cpu, uint16_t address);
+    void (*execute)(struct cpu *cpu, int data);
 };
 
 extern struct instruction iset[ISET_SIZE];
