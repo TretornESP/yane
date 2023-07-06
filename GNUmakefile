@@ -8,6 +8,7 @@ CFLAGS ?= -O0 -g -Wall -Wextra -pipe -pthread
 ABSDIR := $(shell pwd)
 
 SRCDIR := src
+UTILDIR := util
 BUILDHOME := build
 BUILDDIR := build/bin
 OBJDIR := build/lib
@@ -33,7 +34,7 @@ override OBJS := $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(CFILES))
 override OBJS += $(patsubst $(SRCDIR)/%.S, $(OBJDIR)/%_s.o, $(ASFILES))
 override OBJS += $(patsubst $(SRCDIR)/%.asm, $(OBJDIR)/%_asm.o, $(NASMFILES))
 
-.PHONY: clean test all run gdb debug
+.PHONY: clean test all run gdb debug log terminal rterminal kterminal
 
 all:
 	@echo "Building yane..."
@@ -72,3 +73,33 @@ clean:
 	@rm -rf $(OBJDIR)/*
 	@rm -rf $(OBJS)
 	@rm -f $(BUILDDIR)/$(TARGET)
+	@rm -f $(ABSDIR)/log.txt
+	@rm -f $(ABSDIR)/terminal
+
+log:
+	@echo "Building yane..."
+	@make yane
+	@make run > $(ABSDIR)/log.txt
+	@make clean
+	@echo "Done."
+
+terminal:
+	@echo "Building terminal..."
+	@$(CC) $(UTILDIR)/terminal.c -o $(ABSDIR)/terminal
+
+rterminal:
+	@echo "Running terminal..."
+	@$(ABSDIR)/terminal
+
+kterminal:
+	@echo "Killing terminal..."
+	@pkill -f 'make rterminal'
+
+push:
+	@echo "Cleaning up..."
+	@make clean
+	@echo "Pushing to git..."
+	@git add .
+	@git commit
+	@git push origin main
+	@echo "Done..."

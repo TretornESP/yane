@@ -5,6 +5,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+char* addr_modes[] = {
+    "INVALID",
+    "IMMEDIATE",
+    "ZERO_PAGE",
+    "ZERO_PAGE_X",
+    "ZERO_PAGE_Y",
+    "ABSOLUTE",
+    "ABSOLUTE_X",
+    "ABSOLUTE_Y",
+    "INDIRECT_X",
+    "INDIRECT_Y",
+    "NONE",
+    "IMPLIED",
+    "ACCUMULATOR",
+    "INDIRECT",
+    "RELATIVE"
+};
+
 uint8_t get_flag(struct cpu *cpu, uint8_t flag) {
     uint8_t regs = cpu->regs.flags.sr_byte;
     return (regs >> flag) & 1;
@@ -105,7 +123,7 @@ void cpu_act(struct cpu* cpu, uint8_t debug) {
             break;
         }
         case ACCUMULATOR: {
-            effective_address = 0;
+            effective_address = -cpu->regs.a;
             break;
         }
         case IMMEDIATE: {
@@ -136,7 +154,7 @@ void cpu_act(struct cpu* cpu, uint8_t debug) {
             break;
         }
         case RELATIVE: {
-            uint8_t addr = memory_read(cpu->mem, cpu->regs.pc);
+            int8_t addr = memory_read(cpu->mem, cpu->regs.pc);
             cpu->regs.pc++;
             effective_address = cpu->regs.pc + addr;
             break;
@@ -150,7 +168,7 @@ void cpu_act(struct cpu* cpu, uint8_t debug) {
         case ZERO_PAGE_X: {
             uint8_t addr = memory_read(cpu->mem, cpu->regs.pc);
             cpu->regs.pc++;
-            effective_address = addr + cpu->regs.x;
+            effective_address = (addr + cpu->regs.x) % 0x100;
             break;
         }
         case ZERO_PAGE_Y: {
@@ -170,6 +188,7 @@ void cpu_act(struct cpu* cpu, uint8_t debug) {
         for (int i = 0; i < inst->bytes; i++) {
             printf("%02X ", memory_read_silent(cpu->mem, cpu->regs.pc - inst->bytes + i));
         }
+        printf(" ADDR: %s ", addr_modes[inst->addr_mode]);
         if (effective_address < 0)
             printf("INST: [0x%02x]%s 0x%04X\n", inst->opcode, inst->name, -effective_address);
         else

@@ -8,7 +8,7 @@
 
 void adc(struct cpu *cpu, int address) {
     uint8_t value;
-    if (address > 0)
+    if (address >= 0)
         value = memory_read(get_mem(cpu), address);
     else
         value = -address;
@@ -25,7 +25,7 @@ void adc(struct cpu *cpu, int address) {
 
 void and(struct cpu *cpu, int address) {
     uint8_t value;
-    if (address > 0)
+    if (address >= 0)
         value = memory_read(get_mem(cpu), address);
     else
         value = -address;
@@ -40,7 +40,7 @@ void and(struct cpu *cpu, int address) {
 
 void asl(struct cpu *cpu, int address) {
     uint8_t value;
-    if (address > 0)
+    if (address >= 0)
         value = memory_read(get_mem(cpu), address);
     else
         value = -address;
@@ -72,7 +72,7 @@ void beq(struct cpu *cpu, int address) {
 
 void bit(struct cpu *cpu, int address) {
     uint8_t value;
-    if (address > 0)
+    if (address >= 0)
         value = memory_read(get_mem(cpu), address);
     else
         value = -address;
@@ -141,7 +141,7 @@ void clv(struct cpu *cpu, int address) {
 
 void cmp(struct cpu *cpu, int address) {
     uint8_t value;
-    if (address > 0)
+    if (address >= 0)
         value = memory_read(get_mem(cpu), address);
     else
         value = -address;
@@ -155,7 +155,7 @@ void cmp(struct cpu *cpu, int address) {
 
 void cpx(struct cpu *cpu, int address) {
     uint8_t value;
-    if (address > 0)
+    if (address >= 0)
         value = memory_read(get_mem(cpu), address);
     else
         value = -address;
@@ -169,7 +169,7 @@ void cpx(struct cpu *cpu, int address) {
 
 void cpy(struct cpu *cpu, int address) {
     uint8_t value;
-    if (address > 0)
+    if (address >= 0)
         value = memory_read(get_mem(cpu), address);
     else
         value = -address;
@@ -183,7 +183,7 @@ void cpy(struct cpu *cpu, int address) {
 
 void dec(struct cpu *cpu, int address) {
     uint8_t value;
-    if (address > 0)
+    if (address >= 0)
         value = memory_read(get_mem(cpu), address);
     else
         value = -address;
@@ -219,7 +219,7 @@ void dey(struct cpu *cpu, int address) {
 
 void eor(struct cpu *cpu, int address) {
     uint8_t value;
-    if (address > 0)
+    if (address >= 0)
         value = memory_read(get_mem(cpu), address);
     else
         value = -address;
@@ -234,7 +234,7 @@ void eor(struct cpu *cpu, int address) {
 
 void inc(struct cpu *cpu, int address) {
     uint8_t value;
-    if (address > 0)
+    if (address >= 0)
         value = memory_read(get_mem(cpu), address);
     else
         value = -address;
@@ -288,7 +288,7 @@ void jsr(struct cpu *cpu, int address) {
 
 void lda(struct cpu *cpu, int address) {
     uint8_t value;
-    if (address > 0)
+    if (address >= 0)
         value = memory_read(get_mem(cpu), address);
     else
         value = -address;
@@ -301,7 +301,7 @@ void lda(struct cpu *cpu, int address) {
 
 void ldx(struct cpu *cpu, int address) {
     uint8_t value;
-    if (address > 0)
+    if (address >= 0)
         value = memory_read(get_mem(cpu), address);
     else
         value = -address;
@@ -314,7 +314,7 @@ void ldx(struct cpu *cpu, int address) {
 
 void ldy(struct cpu *cpu, int address) {
     uint8_t value;
-    if (address > 0)
+    if (address >= 0)
         value = memory_read(get_mem(cpu), address);
     else
         value = -address;
@@ -327,17 +327,18 @@ void ldy(struct cpu *cpu, int address) {
 
 void lsr(struct cpu *cpu, int address) {
     uint8_t value;
-    if (address > 0)
+    if (address >= 0)
         value = memory_read(get_mem(cpu), address);
     else
         value = -address;
+        
     uint8_t result = value >> 1;
 
     set_flag(cpu, CARRY, value & 0x01);
     set_flag(cpu, ZERO, result == 0);
     set_flag(cpu, NEGATIVE, result & 0x80);
 
-    if (address > 0)
+    if (address >= 0)
         memory_write(get_mem(cpu), address, result);
     else
         set_a(cpu, result);
@@ -351,7 +352,7 @@ void nop(struct cpu *cpu, int address) {
 
 void ora(struct cpu *cpu, int address) {
     uint8_t value;
-    if (address > 0)
+    if (address >= 0)
         value = memory_read(get_mem(cpu), address);
     else
         value = -address;
@@ -390,7 +391,7 @@ void plp(struct cpu *cpu, int address) {
 
 void rol(struct cpu *cpu, int address) {
     uint8_t value;
-    if (address > 0)
+    if (address >= 0)
         value = memory_read(get_mem(cpu), address);
     else
         value = -address;
@@ -401,7 +402,7 @@ void rol(struct cpu *cpu, int address) {
     set_flag(cpu, ZERO, result == 0);
     set_flag(cpu, NEGATIVE, result & 0x80);
 
-    if (address > 0)
+    if (address >= 0)
         memory_write(get_mem(cpu), address, result);
     else
         set_a(cpu, result);
@@ -409,7 +410,7 @@ void rol(struct cpu *cpu, int address) {
 
 void ror(struct cpu *cpu, int address) {
     uint8_t value;
-    if (address > 0)
+    if (address >= 0)
         value = memory_read(get_mem(cpu), address);
     else
         value = -address;
@@ -420,7 +421,7 @@ void ror(struct cpu *cpu, int address) {
     set_flag(cpu, ZERO, result == 0);
     set_flag(cpu, NEGATIVE, result & 0x80);
     
-    if (address > 0)
+    if (address >= 0)
         memory_write(get_mem(cpu), address, result);
     else
         set_a(cpu, result);
@@ -450,7 +451,7 @@ void rts(struct cpu *cpu, int address) {
 
 void sbc(struct cpu *cpu, int address) {
     uint8_t value;
-    if (address > 0)
+    if (address >= 0)
         value = memory_read(get_mem(cpu), address);
     else
         value = -address;
